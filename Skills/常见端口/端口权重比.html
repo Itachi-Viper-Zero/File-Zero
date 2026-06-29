@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>常见端口渗透测试权重表</title>
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --panel: rgba(255, 255, 255, 0.94);
+      --panel-strong: #ffffff;
+      --text: #111827;
+      --muted: #667085;
+      --line: rgba(148, 163, 184, 0.28);
+      --accent: #0f766e;
+      --accent-soft: rgba(15, 118, 110, 0.13);
+      --accent-2: #be4b19;
+      --accent-3: #2563eb;
+      --danger: #b91c1c;
+      --warn: #b45309;
+      --ok: #047857;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 8px 18px rgba(15, 23, 42, 0.06);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.09), transparent 28%),
+        linear-gradient(315deg, rgba(37, 99, 235, 0.08), transparent 30%),
+        linear-gradient(180deg, #f8fafc 0%, var(--bg) 48%, #f8fafc 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent 72%);
+      z-index: -1;
+    }
+
+    header {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(125deg, rgba(9, 18, 28, 0.98), rgba(17, 24, 39, 0.94)),
+        #101820;
+      color: #fff;
+      padding: 34px 24px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      isolation: isolate;
+    }
+
+    header::before,
+    header::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    header::before {
+      width: 620px;
+      height: 180px;
+      right: -110px;
+      top: -80px;
+      background: linear-gradient(90deg, rgba(20, 184, 166, 0.35), rgba(37, 99, 235, 0.2));
+      opacity: 0.55;
+      transform: rotate(-8deg);
+    }
+
+    header::after {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.85), rgba(59, 130, 246, 0.55), transparent);
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topline {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 4vw, 42px);
+      letter-spacing: 0;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #cbd5e1;
+      max-width: 760px;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--radius);
+      color: #e5e7eb;
+      font-size: 13px;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    main {
+      padding: 24px 0 42px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: -46px 0 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .metric {
+      position: relative;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      min-height: 106px;
+      transform: translateY(12px);
+      opacity: 0;
+      animation: cardIn 360ms ease forwards;
+    }
+
+    .metric:nth-child(2) { animation-delay: 70ms; }
+    .metric:nth-child(3) { animation-delay: 140ms; }
+    .metric:nth-child(4) { animation-delay: 210ms; }
+
+    .metric::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.52), transparent 42%);
+      pointer-events: none;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      margin-top: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 296px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    aside,
+    .content {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    aside {
+      padding: 16px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 9px 11px;
+      font: inherit;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.82);
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+      background: #fff;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      min-height: 36px;
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+    }
+
+    button:hover {
+      border-color: rgba(15, 118, 110, 0.38);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+    }
+
+    button.active {
+      background: linear-gradient(135deg, var(--accent), #0d9488);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.22);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ghost-button {
+      color: var(--accent);
+      border-color: rgba(15, 118, 110, 0.25);
+      background: rgba(15, 118, 110, 0.06);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      margin-top: 14px;
+    }
+
+    .content {
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+      background: rgba(248, 250, 252, 0.66);
+    }
+
+    .toolbar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar strong {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .toolbar-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sort-select {
+      width: auto;
+      min-width: 142px;
+      min-height: 34px;
+      padding: 6px 28px 6px 10px;
+      font-size: 13px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .critical { background: var(--danger); }
+    .high { background: var(--warn); }
+    .medium { background: var(--accent-3); }
+    .low { background: var(--ok); }
+
+    .table-wrap {
+      overflow-x: auto;
+      max-height: calc(100vh - 210px);
+      scrollbar-color: rgba(15, 118, 110, 0.52) rgba(226, 232, 240, 0.72);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    th {
+      background: rgba(248, 250, 252, 0.94);
+      color: #334155;
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr {
+      cursor: default;
+    }
+
+    tr:hover td {
+      background: rgba(240, 253, 250, 0.48);
+    }
+
+    tr.selected td {
+      background: rgba(15, 118, 110, 0.09);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .port {
+      font-weight: 800;
+      font-size: 15px;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .service {
+      color: var(--muted);
+      display: block;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .weight {
+      display: grid;
+      gap: 6px;
+      min-width: 130px;
+    }
+
+    .score {
+      font-weight: 800;
+    }
+
+    .bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      width: var(--bar-width, 0%);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      color: #334155;
+      background: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .tag.risk-critical {
+      color: #991b1b;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .tag.risk-high {
+      color: #92400e;
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .tag.risk-medium {
+      color: #1e40af;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .empty {
+      display: none;
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .formula {
+      margin-top: 16px;
+      padding: 16px;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.24), transparent),
+        #101820;
+      color: #e5e7eb;
+      border-radius: var(--radius);
+      line-height: 1.7;
+      font-size: 13px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .formula strong {
+      color: #fff;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: min(360px, calc(100vw - 36px));
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(17, 24, 39, 0.92);
+      color: #fff;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      font-size: 13px;
+      line-height: 1.5;
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes cardIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: -34px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+      }
+    }
+
+    @media (max-width: 560px) {
+      header {
+        padding: 22px 16px 18px;
+      }
+
+      .wrap {
+        width: min(100% - 20px, 1180px);
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+        margin-top: -18px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .toolbar-tools,
+      .legend {
+        width: 100%;
+      }
+
+      .sort-select {
+        width: 100%;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topline">
+      <div>
+        <h1>常见端口渗透测试权重表</h1>
+        <p class="subtitle">用于授权测试中的初筛排序：权重越高，越值得优先做服务识别、弱口令验证、历史漏洞核查、配置审计和访问控制检查。</p>
+      </div>
+      <div class="badge">建议按资产暴露面和业务上下文微调</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="summary" aria-label="总体统计">
+      <div class="metric">
+        <span>最高优先级</span>
+        <strong id="criticalCount">0</strong>
+        <p>通常涉及远程管理、数据库、文件共享或历史高危服务。</p>
+      </div>
+      <div class="metric">
+        <span>建议权重模型</span>
+        <strong>100</strong>
+        <p>100 分满分，按利用价值、暴露概率和影响面估算。</p>
+      </div>
+      <div class="metric">
+        <span>当前显示</span>
+        <strong id="visibleCount">0</strong>
+        <p>可按协议、分类、风险等级和关键词筛选。</p>
+      </div>
+      <div class="metric">
+        <span>使用边界</span>
+        <strong>授权</strong>
+        <p>仅用于合法、授权的安全评估和防护加固。</p>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside>
+        <h2 class="section-title">筛选</h2>
+        <div class="field">
+          <label for="search">关键词</label>
+          <input id="search" type="search" placeholder="端口、服务、检查点" />
+        </div>
+        <div class="field">
+          <label for="category">分类</label>
+          <select id="category">
+            <option value="all">全部分类</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="risk">风险等级</label>
+          <select id="risk">
+            <option value="all">全部等级</option>
+            <option value="critical">极高</option>
+            <option value="high">高</option>
+            <option value="medium">中</option>
+            <option value="low">低</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>协议</label>
+          <div class="chips" id="protocols"></div>
+        </div>
+        <div class="actions">
+          <button class="ghost-button" id="resetFilters" type="button">重置筛选</button>
+        </div>
+        <div class="note">
+          经验排序不是漏洞结论。内网、外网、生产网、云环境、工控网的权重会不同；真实优先级应叠加资产重要性、是否公网暴露、版本信息和认证强度。
+        </div>
+        <div class="formula">
+          <strong>参考公式：</strong><br />
+          综合优先级 = 端口基础权重 x 暴露系数 x 资产价值 x 已知漏洞/弱口令可能性。
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="toolbar">
+          <p id="filterSummary">默认按权重从高到低排序</p>
+          <div class="toolbar-tools">
+            <select class="sort-select" id="sortMode" aria-label="排序方式">
+              <option value="score-desc">权重从高到低</option>
+              <option value="score-asc">权重从低到高</option>
+              <option value="port-asc">端口从小到大</option>
+              <option value="category-asc">分类排序</option>
+            </select>
+            <div class="legend">
+              <span><i class="dot critical"></i>极高 85-100</span>
+              <span><i class="dot high"></i>高 70-84</span>
+              <span><i class="dot medium"></i>中 45-69</span>
+              <span><i class="dot low"></i>低 1-44</span>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>端口 / 服务</th>
+                <th>分类</th>
+                <th>权重</th>
+                <th>为什么优先</th>
+                <th>常见检查点</th>
+                <th>等级</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="empty">没有匹配结果，调整筛选条件后再试。</div>
+      </section>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const ports = [
+      { port: "3389", service: "RDP", protocol: "TCP", category: "远程管理", score: 96, why: "公网暴露后经常成为爆破、凭据复用和横向移动入口。", checks: "弱口令、NLA、账户锁定策略、历史漏洞、访问源限制。" },
+      { port: "22", service: "SSH", protocol: "TCP", category: "远程管理", score: 94, why: "可直接获得主机交互入口，凭据安全和版本暴露价值高。", checks: "弱口令、密钥登录策略、Root 登录、版本漏洞、MFA/堡垒机。" },
+      { port: "445", service: "SMB", protocol: "TCP", category: "文件共享", score: 93, why: "常与域环境、共享权限、远程执行和历史高危漏洞相关。", checks: "匿名访问、共享枚举、签名配置、MS17-010、弱凭据。" },
+      { port: "3306", service: "MySQL", protocol: "TCP", category: "数据库", score: 91, why: "数据库泄露影响直接，弱口令和远程暴露问题常见。", checks: "弱口令、空密码、远程 Root、版本漏洞、敏感库表权限。" },
+      { port: "1433", service: "MSSQL", protocol: "TCP", category: "数据库", score: 90, why: "企业内网常见，拿到权限后可能扩展到系统命令执行。", checks: "sa 弱口令、xp_cmdshell、链接服务器、补丁、暴露面。" },
+      { port: "6379", service: "Redis", protocol: "TCP", category: "数据库", score: 89, why: "未授权访问和错误绑定历史上非常常见，影响面大。", checks: "requirepass、bind、保护模式、未授权读写、敏感键。" },
+      { port: "5432", service: "PostgreSQL", protocol: "TCP", category: "数据库", score: 86, why: "数据库服务可造成敏感数据泄露和权限扩大。", checks: "弱口令、pg_hba 配置、扩展权限、版本漏洞、备份数据。" },
+      { port: "5900", service: "VNC", protocol: "TCP", category: "远程管理", score: 85, why: "图形化远程桌面入口，弱认证时危害直接。", checks: "空密码、弱口令、加密配置、访问控制、暴露范围。" },
+      { port: "80/443", service: "HTTP/HTTPS", protocol: "TCP", category: "Web", score: 84, why: "业务入口最多，攻击面广，通常是信息收集和漏洞验证核心。", checks: "指纹识别、目录、认证绕过、注入、上传、TLS、默认后台。" },
+      { port: "8080/8443", service: "Web 管理", protocol: "TCP", category: "Web", score: 82, why: "经常承载中间件控制台、代理、测试系统或管理后台。", checks: "默认口令、未授权控制台、反向代理配置、弱鉴权。" },
+      { port: "21", service: "FTP", protocol: "TCP", category: "文件传输", score: 80, why: "匿名访问、明文凭据和可写目录容易导致数据泄露或落点。", checks: "匿名登录、弱口令、可写目录、明文传输、版本漏洞。" },
+      { port: "23", service: "Telnet", protocol: "TCP", category: "远程管理", score: 79, why: "明文远程登录协议，常见于老旧设备和网络设备。", checks: "弱口令、默认口令、明文抓包、访问控制、设备型号。" },
+      { port: "27017", service: "MongoDB", protocol: "TCP", category: "数据库", score: 78, why: "错误暴露可能直接导致数据读取、删除或勒索风险。", checks: "认证配置、绑定地址、版本、备份集合、敏感字段。" },
+      { port: "9200", service: "Elasticsearch", protocol: "TCP", category: "搜索/数据", score: 77, why: "未授权访问可能暴露日志、账号、业务数据和系统线索。", checks: "未授权访问、索引枚举、插件、集群配置、敏感日志。" },
+      { port: "11211", service: "Memcached", protocol: "TCP/UDP", category: "缓存", score: 74, why: "未授权访问和 UDP 放大风险常见，可能泄露缓存数据。", checks: "公网暴露、未授权 stats/items、UDP 开放、访问源限制。" },
+      { port: "25/465/587", service: "SMTP", protocol: "TCP", category: "邮件", score: 72, why: "可能涉及邮件伪造、中继滥用、账号爆破和内部信息泄露。", checks: "开放中继、STARTTLS、用户枚举、弱口令、SPF/DKIM/DMARC。" },
+      { port: "110/995", service: "POP3/POP3S", protocol: "TCP", category: "邮件", score: 69, why: "邮箱凭据价值高，弱口令和明文认证需要重点确认。", checks: "弱口令、明文认证、TLS、账号锁定、暴露范围。" },
+      { port: "143/993", service: "IMAP/IMAPS", protocol: "TCP", category: "邮件", score: 69, why: "邮箱访问入口，凭据泄露后常用于社工和业务信息收集。", checks: "弱口令、TLS、MFA、账号枚举、登录限制。" },
+      { port: "53", service: "DNS", protocol: "TCP/UDP", category: "基础设施", score: 68, why: "可用于域信息枚举、区域传送误配和解析策略分析。", checks: "区域传送、递归开放、子域枚举、缓存投毒防护。" },
+      { port: "161/162", service: "SNMP", protocol: "UDP", category: "基础设施", score: 67, why: "团体字弱配置会泄露设备、接口、路由和系统信息。", checks: "public/private 团体字、v3 配置、OID 枚举、ACL。" },
+      { port: "139", service: "NetBIOS", protocol: "TCP", category: "文件共享", score: 66, why: "有助于主机名、域、共享和老旧 Windows 暴露面识别。", checks: "会话枚举、共享列表、空会话、系统版本。" },
+      { port: "2049", service: "NFS", protocol: "TCP/UDP", category: "文件共享", score: 65, why: "导出目录误配可能导致敏感文件读取或写入。", checks: "showmount、导出权限、no_root_squash、可写目录。" },
+      { port: "389/636", service: "LDAP/LDAPS", protocol: "TCP", category: "身份目录", score: 64, why: "目录服务能提供组织、账号、组和认证策略线索。", checks: "匿名绑定、明文 LDAP、账号枚举、目录权限、证书配置。" },
+      { port: "88", service: "Kerberos", protocol: "TCP/UDP", category: "身份目录", score: 63, why: "域环境核心服务，适合确认域信息和认证安全状态。", checks: "用户枚举、时间同步、加密类型、弱口令策略。" },
+      { port: "873", service: "Rsync", protocol: "TCP", category: "文件同步", score: 62, why: "匿名模块或弱认证可能暴露源码、备份和配置。", checks: "模块枚举、匿名访问、读写权限、敏感文件。" },
+      { port: "5000", service: "Docker Registry/Flask 等", protocol: "TCP", category: "应用服务", score: 60, why: "常见开发服务、镜像仓库或内部 API 暴露。", checks: "未授权 API、镜像泄露、调试模式、默认页面。" },
+      { port: "2375/2376", service: "Docker API", protocol: "TCP", category: "云原生", score: 88, why: "未授权 Docker API 可能直接控制宿主机容器。", checks: "TLS、未授权访问、容器列表、挂载、网络暴露。" },
+      { port: "6443", service: "Kubernetes API", protocol: "TCP", category: "云原生", score: 87, why: "集群控制面入口，错误授权影响整个集群。", checks: "认证方式、匿名访问、RBAC、证书、API 暴露范围。" },
+      { port: "10250", service: "Kubelet", protocol: "TCP", category: "云原生", score: 83, why: "节点管理接口，误配可能读取 Pod 信息或执行命令。", checks: "匿名访问、只读端口、证书认证、权限边界。" },
+      { port: "9092", service: "Kafka", protocol: "TCP", category: "消息队列", score: 61, why: "未授权访问可能读取业务消息和内部主题。", checks: "认证、ACL、主题枚举、明文传输、外网暴露。" },
+      { port: "5672/15672", service: "RabbitMQ/管理台", protocol: "TCP", category: "消息队列", score: 70, why: "管理台默认账号和消息队列权限问题较常见。", checks: "guest 账号、管理台暴露、vhost 权限、TLS。" },
+      { port: "7001", service: "WebLogic", protocol: "TCP", category: "中间件", score: 81, why: "历史高危漏洞多，管理入口和反序列化风险需要关注。", checks: "控制台、默认口令、版本、补丁、T3 暴露。" },
+      { port: "1099", service: "Java RMI", protocol: "TCP", category: "中间件", score: 71, why: "老旧 Java 服务可能涉及反序列化和远程调用风险。", checks: "服务枚举、JMX/RMI、认证、版本组件。" },
+      { port: "1521", service: "Oracle", protocol: "TCP", category: "数据库", score: 76, why: "数据库资产价值高，默认账号和监听器信息很关键。", checks: "SID 枚举、默认账号、监听器配置、补丁版本。" },
+      { port: "69", service: "TFTP", protocol: "UDP", category: "文件传输", score: 58, why: "无认证文件传输常暴露网络设备配置和启动文件。", checks: "文件读取、配置备份、写入能力、访问源限制。" },
+      { port: "111", service: "RPCbind", protocol: "TCP/UDP", category: "基础设施", score: 52, why: "可辅助发现 NFS 等 RPC 服务和内部服务暴露。", checks: "RPC 服务枚举、NFS 关联、访问控制。" },
+      { port: "123", service: "NTP", protocol: "UDP", category: "基础设施", score: 42, why: "主要用于时间服务识别和放大攻击风险确认。", checks: "monlist、版本、放大风险、访问限制。" },
+      { port: "8000/8888", service: "开发/代理服务", protocol: "TCP", category: "应用服务", score: 57, why: "常见临时服务、Notebook、代理或调试入口。", checks: "未授权访问、调试接口、目录列表、默认令牌。" },
+      { port: "9000", service: "PHP-FPM/MinIO 等", protocol: "TCP", category: "应用服务", score: 73, why: "不同服务复用该端口，误暴露时影响从文件到对象存储不等。", checks: "服务指纹、未授权访问、默认凭据、FastCGI 暴露。" },
+      { port: "5985/5986", service: "WinRM", protocol: "TCP", category: "远程管理", score: 75, why: "Windows 远程管理入口，域环境横向移动价值较高。", checks: "认证策略、HTTPS、弱凭据、访问源、日志审计。" }
+    ];
+
+    const riskLabel = {
+      critical: "极高",
+      high: "高",
+      medium: "中",
+      low: "低"
+    };
+
+    const state = {
+      protocol: "all"
+    };
+
+    const rows = document.getElementById("rows");
+    const search = document.getElementById("search");
+    const category = document.getElementById("category");
+    const risk = document.getElementById("risk");
+    const protocols = document.getElementById("protocols");
+    const resetFilters = document.getElementById("resetFilters");
+    const sortMode = document.getElementById("sortMode");
+    const filterSummary = document.getElementById("filterSummary");
+    const visibleCount = document.getElementById("visibleCount");
+    const criticalCount = document.getElementById("criticalCount");
+    const empty = document.getElementById("empty");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+    let renderTimer;
+
+    function level(score) {
+      if (score >= 85) return "critical";
+      if (score >= 70) return "high";
+      if (score >= 45) return "medium";
+      return "low";
+    }
+
+    function barColor(score) {
+      if (score >= 85) return "var(--danger)";
+      if (score >= 70) return "var(--warn)";
+      if (score >= 45) return "var(--accent-3)";
+      return "var(--ok)";
+    }
+
+    function normalize(value) {
+      return String(value).toLowerCase().trim();
+    }
+
+    function portNumber(value) {
+      const match = String(value).match(/\d+/);
+      return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER;
+    }
+
+    function sortPorts(items) {
+      const sorters = {
+        "score-desc": (a, b) => b.score - a.score || portNumber(a.port) - portNumber(b.port),
+        "score-asc": (a, b) => a.score - b.score || portNumber(a.port) - portNumber(b.port),
+        "port-asc": (a, b) => portNumber(a.port) - portNumber(b.port) || b.score - a.score,
+        "category-asc": (a, b) => a.category.localeCompare(b.category, "zh-CN") || b.score - a.score
+      };
+      return items.sort(sorters[sortMode.value] || sorters["score-desc"]);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function appendStrong(parent, text) {
+      const strong = document.createElement("strong");
+      strong.textContent = text;
+      parent.appendChild(strong);
+    }
+
+    function updateSummary(filtered) {
+      const parts = [];
+      if (search.value.trim()) parts.push(`关键词 “${search.value.trim()}”`);
+      if (category.value !== "all") parts.push(category.value);
+      if (risk.value !== "all") parts.push(`风险：${riskLabel[risk.value]}`);
+      if (state.protocol !== "all") parts.push(`协议：${state.protocol}`);
+
+      const top = filtered[0];
+      filterSummary.replaceChildren();
+      if (parts.length) {
+        filterSummary.append("已应用 ");
+        appendStrong(filterSummary, parts.join(" / "));
+        filterSummary.append("，显示 ");
+      } else {
+        filterSummary.append("默认按权重排序，显示 ");
+      }
+      appendStrong(filterSummary, String(filtered.length));
+      filterSummary.append(" 项");
+
+      if (top) {
+        filterSummary.append("，当前最高优先级：");
+        appendStrong(filterSummary, `${top.port} ${top.service}`);
+      }
+    }
+
+    function updateProtocolButtons() {
+      protocols.querySelectorAll("button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.protocol === state.protocol);
+      });
+    }
+
+    function scheduleRender() {
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(render, 80);
+    }
+
+    function fillFilters() {
+      const categories = [...new Set(ports.map(item => item.category))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+      categories.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = item;
+        category.appendChild(option);
+      });
+
+      ["all", "TCP", "UDP", "TCP/UDP"].forEach(item => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = item === "all" ? "全部" : item;
+        button.dataset.protocol = item;
+        if (item === state.protocol) button.classList.add("active");
+        button.addEventListener("click", () => {
+          state.protocol = item;
+          updateProtocolButtons();
+          render();
+        });
+        protocols.appendChild(button);
+      });
+    }
+
+    function matchesProtocol(item) {
+      if (state.protocol === "all") return true;
+      if (state.protocol === "TCP/UDP") return item.protocol === "TCP/UDP";
+      return item.protocol.includes(state.protocol);
+    }
+
+    function render() {
+      const keyword = normalize(search.value);
+      const selectedCategory = category.value;
+      const selectedRisk = risk.value;
+
+      const filtered = sortPorts(ports
+        .filter(item => selectedCategory === "all" || item.category === selectedCategory)
+        .filter(item => selectedRisk === "all" || level(item.score) === selectedRisk)
+        .filter(matchesProtocol)
+        .filter(item => {
+          if (!keyword) return true;
+          return normalize(`${item.port} ${item.service} ${item.category} ${item.protocol} ${item.why} ${item.checks}`).includes(keyword);
+        }));
+
+      rows.innerHTML = "";
+      filtered.forEach(item => {
+        const itemLevel = level(item.score);
+        const tr = document.createElement("tr");
+        tr.tabIndex = 0;
+        tr.innerHTML = `
+          <td>
+            <span class="port">${item.port}</span>
+            <span class="service">${item.service} · ${item.protocol}</span>
+          </td>
+          <td>${item.category}</td>
+          <td>
+            <div class="weight">
+              <span class="score">${item.score}/100</span>
+              <div class="bar"><span style="--bar-width: ${item.score}%; background: ${barColor(item.score)}"></span></div>
+            </div>
+          </td>
+          <td>${item.why}</td>
+          <td>${item.checks}</td>
+          <td><span class="tag risk-${itemLevel}">${riskLabel[itemLevel]}</span></td>
+        `;
+        tr.addEventListener("click", () => {
+          rows.querySelectorAll("tr").forEach(row => row.classList.remove("selected"));
+          tr.classList.add("selected");
+          showToast(`${item.port} ${item.service}：建议优先检查 ${item.checks}`);
+        });
+        tr.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            tr.click();
+          }
+        });
+        rows.appendChild(tr);
+      });
+
+      visibleCount.textContent = filtered.length;
+      empty.style.display = filtered.length ? "none" : "block";
+      updateSummary(filtered);
+    }
+
+    search.addEventListener("input", scheduleRender);
+    category.addEventListener("change", render);
+    risk.addEventListener("change", render);
+    sortMode.addEventListener("change", render);
+    resetFilters.addEventListener("click", () => {
+      search.value = "";
+      category.value = "all";
+      risk.value = "all";
+      sortMode.value = "score-desc";
+      state.protocol = "all";
+      updateProtocolButtons();
+      render();
+      showToast("筛选条件已重置。");
+    });
+
+    criticalCount.textContent = ports.filter(item => level(item.score) === "critical").length;
+    fillFilters();
+    render();
+  </script>
+</body>
+</html>
